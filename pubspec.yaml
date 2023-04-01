@@ -5,7 +5,8 @@ description: The Flutter plugin implementing Host Card Emulation (HCE)
 
 version: 1.0.0
 
-homepage:
+repository: https://github.com/zxxdanxxz/nfc_host_card_emulation
+homepage: https://github.com/zxxdanxxz/nfc_host_card_emulation
 
 environment:
   sdk: '>=2.19.0 <3.0.0'
