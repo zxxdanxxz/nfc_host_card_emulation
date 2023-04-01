@@ -7,8 +7,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await NfcHce.init(
+    // AID that match at least one aid-filter in apduservice.xml
+    // In my case it is A000DADADADADA.
     aid: Uint8List.fromList([0xA0, 0x00, 0xDA, 0xDA, 0xDA, 0xDA, 0xDA]),
+    // next parameter determines whether APDU responses from the ports
+    // on which the connection occurred will be deleted.
+    // If `true`, responses will be deleted, otherwise won't.
     permanentApduResponses: true,
+    // next parameter determines whether APDU commands received on ports
+    // to which there are no responses will be added to the stream.
+    // If `true`, command won't be added, otherwise will.
     listenOnlyConfiguredPorts: false,
   );
 
