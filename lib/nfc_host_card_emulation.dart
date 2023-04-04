@@ -50,6 +50,11 @@ class NfcHce {
   static Future<void> removeApduResponse(int port) async {
     await _platform.removeApduResponse(port);
   }
+
+  /// Checks device's NFC state
+  static Future<NfcState> checkDeviceNfcState() async {
+    return await _platform.checkDeviceNfcState();
+  }
 }
 
 /// A class that contains data about accepted APDU commands.
@@ -66,4 +71,11 @@ class NfcApduCommand {
   final Uint8List? data;
 
   const NfcApduCommand(this.port, this.command, this.data);
+}
+
+/// Enum for representing different states of an NFC device.
+enum NfcState {
+  enabled,
+  disabled,
+  notSupported,
 }

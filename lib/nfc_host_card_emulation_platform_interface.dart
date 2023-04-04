@@ -39,4 +39,7 @@ abstract class NfcHostCardEmulationPlatform extends PlatformInterface {
 
   /// Removes an APDU response from the specified port
   Future<void> removeApduResponse(int port);
+
+  /// Checks device's NFC state
+  Future<NfcState> checkDeviceNfcState();
 }

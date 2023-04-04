@@ -2,6 +2,8 @@ package io.flutter.plugins.nfc_host_card_emulation
 
 import android.util.Log
 
+import android.nfc.NfcAdapter
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -23,16 +25,14 @@ import io.flutter.plugins.nfc_host_card_emulation.AndroidHceService
 
 /** NfcHostCardEmulationPlugin */
 class NfcHostCardEmulationPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
-  private lateinit var context: Context
   private lateinit var activity: Activity
   private lateinit var channel : MethodChannel
+  private var nfcAdapter : NfcAdapter? = null
 
   // base methods
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "nfc_host_card_emulation")
     channel.setMethodCallHandler(this)
-
-    context = flutterPluginBinding.applicationContext
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
@@ -42,6 +42,8 @@ class NfcHostCardEmulationPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
     activity.registerReceiver(apduServiceReciever, IntentFilter("apduCommand"))
+
+    nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
   }
 
   override fun onDetachedFromActivity() {
@@ -60,13 +62,13 @@ class NfcHostCardEmulationPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   // nfc host card emulation methods
   private val apduServiceReciever = object : BroadcastReceiver() {
     override fun onReceive(contxt: Context?, intent: Intent?) {   
-        when (intent?.action) {
-          "apduCommand" -> channel.invokeMethod("apduCommand", mapOf(
-            "port" to intent!!.getIntExtra("port", -1),
-            "command" to intent!!.getByteArrayExtra("command"),
-            "data" to intent!!.getByteArrayExtra("data"))
-          )
-        }
+      when (intent?.action) {
+        "apduCommand" -> channel.invokeMethod("apduCommand", mapOf(
+          "port" to intent!!.getIntExtra("port", -1),
+          "command" to intent!!.getByteArrayExtra("command"),
+          "data" to intent!!.getByteArrayExtra("data"))
+        )
+      }
     }
   }
   
@@ -75,6 +77,7 @@ class NfcHostCardEmulationPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
       "init" -> init(call, result)
       "addApduResponse" -> addApduResponse(call, result)
       "removeApduResponse" -> removeApduResponse(call, result)
+      "checkNfc" -> result.success(nfcAdapter?.isEnabled())
       else -> result.notImplemented()
     }
   }
@@ -96,7 +99,7 @@ class NfcHostCardEmulationPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
       if(ins != null) AndroidHceService.ins = ins;
 
       val AID = AndroidHceService.byteArrayToString(AndroidHceService.aid)
-      Log.d("HCE", "HCE initialized. AID = $AID. CLA = ${AndroidHceService.cla.toUByte().toString(16)}. INS = ${AndroidHceService.ins.toUByte().toString(16)}")
+      Log.d("HCE", "HCE initialized. AID = $AID.")
     }
     catch(e : Exception) {
       result.error("invalid method parameters", "invalid parameters in 'init' method", null)

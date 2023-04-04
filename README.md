@@ -5,11 +5,13 @@ The Flutter plugin implementing Host Card Emulation (HCE) with the APDU communic
 ## Features
 
 Implemented an interface for working with SELECT (by AID) APDU commands. The structure of APDU commands is as follows:
+
 | CLA | INS | P1  | P2 (port) | AID Length | AID | Additional data |
 | --- | --- | --- | --- | ---------- | --- | --- |
 | 0x00| 0xA4| 0x04| 0 - 255   | 5 - 16 | ByteArray with defined length | ByteArray |
 
 The P2 parameter is adjustable and is used in the plugin as a port for registering the APDU response. The structure of APDU response is as follows:
+
 | DATA  | STATUS  |
 | --- | --- |
 | User-defined response or nothing | Two status bytes defined in ISO7816-4 standart |
@@ -63,7 +65,14 @@ import 'package:nfc_host_card_emulation/nfc_host_card_emulation.dart';
 
 ## Usage
 
-Initialize the HCE service with the following command:
+Check if your device supports NFC and if the NFC-module is enabled:
+```dart
+final nfcState = await NfcHce.checkDeviceNfcState();
+```
+
+If nfcState is `NfcState.enabled`, then you can use other NfcHce functions. Otherwise, the functions will work, but will have no effect and you won't be able to use APDU.
+
+So after you have checked that Nfc is enabled, initialize the HCE service with the following command:
 ```dart
 await NfcHce.init(
     // AID that match at least one aid-filter in apduservice.xml.

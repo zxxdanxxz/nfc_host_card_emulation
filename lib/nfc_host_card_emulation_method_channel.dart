@@ -53,9 +53,22 @@ class MethodChannelNfcHostCardEmulation extends NfcHostCardEmulationPlatform {
 
   @override
   Future<void> removeApduResponse(int port) async {
-    await methodChannel.invokeMethod<String>(
+    await methodChannel.invokeMethod(
       'removeApduResponse',
       {'port': port},
     );
+  }
+
+  @override
+  Future<NfcState> checkDeviceNfcState() async {
+    final state = await methodChannel.invokeMethod<bool?>('checkNfc');
+    switch (state) {
+      case true:
+        return NfcState.enabled;
+      case false:
+        return NfcState.disabled;
+      default:
+        return NfcState.notSupported;
+    }
   }
 }
